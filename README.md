@@ -1,5 +1,14 @@
 # @flashy/wdk-policy-guard
 
+```
+        ██
+       ██
+      ██████
+        ██
+       ██
+      ██
+```
+
 A spending-policy layer for wallets built on [Tether's WDK](https://github.com/tetherto/wdk) — or any wallet SDK. It grades a proposed spend against a per-agent envelope *before* anything signs, and returns one of three verdicts: **ALLOW**, **ESCALATE**, or **DENY**, always with a reason.
 
 [![tests](https://github.com/FlashyLabs/wdk-policy-guard/actions/workflows/ci.yml/badge.svg)](https://github.com/FlashyLabs/wdk-policy-guard/actions/workflows/ci.yml)
@@ -111,6 +120,17 @@ Every one of these is a real test in [`test/policy.test.mjs`](test/policy.test.m
 - **`grade()` is pure.** It reads the ledger's `used()` but never writes it. Reserving happens after `ALLOW`, and is the caller's responsibility — this keeps grading safe to call speculatively (to preview a verdict in a UI) without side effects.
 - **A refusal always carries a reason.** `DENY` codes are drawn from a closed, published list (`DENIAL_CODES`) — never an ad-hoc string — so a refusal read by a person and a refusal read by a log line always mean the same thing.
 - **No dependency on any wallet SDK.** The core (`grade`, `validateEnvelope`, `DailyLedger`) imports nothing beyond its own `codes.js`. WDK integration lives entirely in the optional `./adapters/wdk` entry point, which itself has zero `@tetherto/*` imports — see [`ARCHITECTURE.md`](ARCHITECTURE.md#why-there-is-no-wdk-dependency).
+- **Nothing here is clever.** Every rule is one comparison a reviewer can check in thirty seconds — the security property is the absence of anything to be clever about.
+
+## What this package does not do
+
+- It does not sign anything, hold a key, or call a network. It is a pure function over data you provide.
+- It does not decide *who* may set or revoke an envelope — that's an authorization question for your own application, upstream of this package.
+- It does not persist anything on its own. `DailyLedger`'s default is in-memory; persistence is your integration's choice — see `ARCHITECTURE.md`.
+
+## Status
+
+Pre-1.0 (`0.1.0`). The `Envelope` and `SpendRecord` shapes are not yet frozen — a field added later ships as a minor version, but a field renamed or a verdict's meaning changed would not. Watch [`CHANGELOG.md`](CHANGELOG.md) across a version bump before pinning a wider range than `^0.1.0`.
 
 ## Testing
 
@@ -132,6 +152,18 @@ Extracted from the policy engine built for [Flashy Wallet](https://github.com/Fl
 ## Contributing
 
 See [`CONTRIBUTING.md`](CONTRIBUTING.md).
+
+## ⚡ The Strike
+
+This README commits to a secret, the way `grade()` commits to a verdict — before anything is revealed, and checkable by anyone after:
+
+```
+sha256: 6124a73d8fb7b9825992bebeb99e1ff98ce07a202a53be51e4ccd7964e48d509
+```
+
+The preimage is already on this page — one exact sentence from "Design principles," above. Recover it, hash it yourself (never trust, verify — that includes us), and open an issue titled `⚡ STRIKE` containing the sentence. First verified striker per release gets their name in [`STRIKERS.md`](STRIKERS.md) — the only file in this repository that's append-only by tradition rather than by code.
+
+No prize, no token. A spending-policy layer has enough of those jokes already.
 
 ## License
 
