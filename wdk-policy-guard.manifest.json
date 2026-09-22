@@ -1,0 +1,38 @@
+{
+  "contract": "wdk-policy-guard-manifest/1",
+  "name": "@flashy/wdk-policy-guard",
+  "module": {
+    "package": "@flashy/wdk-policy-guard",
+    "version": "0.1.0"
+  },
+  "verdicts": [
+    "ALLOW",
+    "ESCALATE",
+    "DENY"
+  ],
+  "kinds": [
+    "transfer",
+    "swap",
+    "bridge"
+  ],
+  "denialCodes": [
+    "NO_ENVELOPE",
+    "ENVELOPE_INACTIVE",
+    "KIND_NOT_PERMITTED",
+    "ASSET_NOT_PERMITTED",
+    "DESTINATION_NOT_PERMITTED",
+    "PER_TX_CAP",
+    "DAILY_CAP",
+    "INVALID_AMOUNT",
+    "INVALID_RECORD"
+  ],
+  "refuses": [
+    "a spend record missing a required field, or shaped wrong — INVALID_RECORD, never guessed at",
+    "a spend with no envelope set for its chain — NO_ENVELOPE",
+    "a spend against a revoked envelope — ENVELOPE_INACTIVE",
+    "a kind, asset or destination outside the envelope — KIND_NOT_PERMITTED / ASSET_NOT_PERMITTED / DESTINATION_NOT_PERMITTED",
+    "a spend over the per-transaction cap — PER_TX_CAP",
+    "a spend that would exceed the daily cap once today's reservations are counted — DAILY_CAP",
+    "an envelope whose autoApproveMax exceeds its perTxMax, or whose perTxMax exceeds its dailyMax — ENVELOPE_INVALID_CAPS"
+  ]
+}

@@ -1,0 +1,35 @@
+{
+  "name": "@flashy/wdk-policy-guard",
+  "version": "0.1.0",
+  "description": "A spending-policy layer for wallets built on Tether's WDK (or any wallet SDK): grade a transfer against a per-agent envelope — kind, chain, asset and destination allowlists, a per-transaction cap, a daily cap, an auto-approve ceiling — before it signs. ALLOW, ESCALATE or DENY, with a reason.",
+  "type": "module",
+  "main": "./src/index.js",
+  "exports": {
+    ".": "./src/index.js",
+    "./adapters/wdk": "./src/adapters/wdk.js"
+  },
+  "scripts": {
+    "test": "node --test test/*.test.mjs",
+    "manifest": "node src/manifest.js --write",
+    "check": "node src/manifest.js --check"
+  },
+  "keywords": [
+    "wdk",
+    "tether",
+    "wallet",
+    "policy",
+    "guardrails",
+    "agent",
+    "spending-limits",
+    "crypto",
+    "web3"
+  ],
+  "author": "Flashy Labs",
+  "license": "Apache-2.0",
+  "repository": { "type": "git", "url": "git+https://github.com/FlashyLabs/wdk-policy-guard.git" },
+  "homepage": "https://github.com/FlashyLabs/wdk-policy-guard#readme",
+  "bugs": { "url": "https://github.com/FlashyLabs/wdk-policy-guard/issues" },
+  "engines": { "node": ">=20" },
+  "devDependencies": {},
+  "files": ["src", "LICENSE", "README.md", "CHANGELOG.md"]
+}
