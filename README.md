@@ -13,7 +13,7 @@ A spending-policy layer for wallets built on [Tether's WDK](https://github.com/t
 
 [![tests](https://github.com/FlashyLabs/wdk-policy-guard/actions/workflows/ci.yml/badge.svg)](https://github.com/FlashyLabs/wdk-policy-guard/actions/workflows/ci.yml)
 [![CodeQL](https://github.com/FlashyLabs/wdk-policy-guard/actions/workflows/codeql.yml/badge.svg)](https://github.com/FlashyLabs/wdk-policy-guard/actions/workflows/codeql.yml)
-[![OpenSSF Scorecard](https://api.securityscorecards.dev/projects/github.com/FlashyLabs/wdk-policy-guard/badge)](https://scorecard.dev/viewer/?uri=github.com/FlashyLabs/wdk-policy-guard)
+[![Scorecard](https://github.com/FlashyLabs/wdk-policy-guard/actions/workflows/scorecard.yml/badge.svg)](https://github.com/FlashyLabs/wdk-policy-guard/security/code-scanning)
 [![npm version](https://img.shields.io/npm/v/@flashylabs/wdk-policy-guard.svg)](https://www.npmjs.com/package/@flashylabs/wdk-policy-guard)
 [![npm downloads](https://img.shields.io/npm/dm/@flashylabs/wdk-policy-guard.svg)](https://www.npmjs.com/package/@flashylabs/wdk-policy-guard)
 [![license](https://img.shields.io/badge/license-Apache--2.0-blue.svg)](./LICENSE)
