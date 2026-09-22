@@ -1,4 +1,4 @@
-# @flashy/wdk-policy-guard
+# @flashylabs/wdk-policy-guard
 
 ```
         ██
@@ -15,7 +15,7 @@ A spending-policy layer for wallets built on [Tether's WDK](https://github.com/t
 [![license](https://img.shields.io/badge/license-Apache--2.0-blue.svg)](./LICENSE)
 [![node](https://img.shields.io/badge/node-%3E%3D20-brightgreen.svg)](https://nodejs.org)
 
-Built by [Flashy Labs](https://flashyos.com) — part of the open-source toolkit we ship for teams building on Tether's WDK. Its sibling package is [`@flashy/wdk-staking-kit`](https://github.com/FlashyLabs/wdk-staking-kit).
+Built by [Flashy Labs](https://flashyos.com) — part of the open-source toolkit we ship for teams building on Tether's WDK. Its sibling package is [`@flashylabs/wdk-staking-kit`](https://github.com/FlashyLabs/wdk-staking-kit).
 
 ## Why this exists
 
@@ -26,13 +26,13 @@ This package is that twenty lines, done once, tested from every angle we could f
 ## Install
 
 ```bash
-npm install @flashy/wdk-policy-guard
+npm install @flashylabs/wdk-policy-guard
 ```
 
 ## Quickstart
 
 ```js
-import { grade, DailyLedger } from '@flashy/wdk-policy-guard'
+import { grade, DailyLedger } from '@flashylabs/wdk-policy-guard'
 
 const envelope = {
   chain: 'evm:84532',
@@ -67,7 +67,7 @@ if (verdict.verdict === 'ALLOW') {
 ### Wiring it in front of a real send
 
 ```js
-import { guardSend, DailyLedger } from '@flashy/wdk-policy-guard/adapters/wdk'
+import { guardSend, DailyLedger } from '@flashylabs/wdk-policy-guard/adapters/wdk'
 
 const ledger = new DailyLedger()
 const guardedTransfer = guardSend(
@@ -94,7 +94,7 @@ See [`examples/basic.mjs`](examples/basic.mjs) for a runnable end-to-end example
 | `guardSend(send, opts)` | `./adapters/wdk` | Wraps any async send function with a `grade()` check — call-through only on `ALLOW`. |
 | `PolicyDeniedError`, `PolicyEscalationRequiredError` | `./adapters/wdk` | Thrown by `guardSend()`'s wrapped function on `DENY` / `ESCALATE`. |
 
-Full JSDoc types ship with the package — `Envelope` and `SpendRecord` are documented inline in `src/policy.js` and `src/record.js`, and any editor with TypeScript's language server will surface them without a build step.
+Full TypeScript declarations ship with the package — `Envelope` and `SpendRecord` import directly from the package root (`import type { Envelope } from '@flashylabs/wdk-policy-guard'`), generated from the source's own JSDoc so the types can never drift from the implementation. `test-types/consumer.ts` is the type-level test that would fail if they ever did.
 
 ## What it refuses
 

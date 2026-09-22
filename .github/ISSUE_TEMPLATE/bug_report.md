@@ -13,7 +13,7 @@ A clear description of what you expected `grade()` (or `guardSend()`) to return,
 **Minimal reproduction**
 
 ```js
-import { grade, DailyLedger } from '@flashy/wdk-policy-guard'
+import { grade, DailyLedger } from '@flashylabs/wdk-policy-guard'
 
 const envelope = { /* ... */ }
 const record = { /* ... */ }
@@ -28,7 +28,7 @@ The smaller this is, the faster it gets fixed. If you can trim it to one `grade(
 
 **Package version**
 
-Output of `npm ls @flashy/wdk-policy-guard`.
+Output of `npm ls @flashylabs/wdk-policy-guard`.
 
 **Environment**
 

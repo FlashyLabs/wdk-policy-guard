@@ -13,7 +13,7 @@ export function build() {
   const pkg = JSON.parse(readFileSync(join(ROOT, 'package.json'), 'utf8'))
   return {
     contract: 'wdk-policy-guard-manifest/1',
-    name: '@flashy/wdk-policy-guard',
+    name: '@flashylabs/wdk-policy-guard',
     module: { package: pkg.name, version: pkg.version },
     verdicts: VERDICTS,
     kinds: KINDS,

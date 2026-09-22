@@ -1,8 +1,8 @@
 {
   "contract": "wdk-policy-guard-manifest/1",
-  "name": "@flashy/wdk-policy-guard",
+  "name": "@flashylabs/wdk-policy-guard",
   "module": {
-    "package": "@flashy/wdk-policy-guard",
+    "package": "@flashylabs/wdk-policy-guard",
     "version": "0.1.0"
   },
   "verdicts": [

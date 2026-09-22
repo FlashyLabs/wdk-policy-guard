@@ -1,0 +1,16 @@
+{
+  "compilerOptions": {
+    "target": "ES2022",
+    "module": "NodeNext",
+    "moduleResolution": "NodeNext",
+    "strict": true,
+    "noEmit": true,
+    "skipLibCheck": true,
+    "baseUrl": ".",
+    "paths": {
+      "@flashylabs/wdk-policy-guard": ["../dist/index.d.ts"],
+      "@flashylabs/wdk-policy-guard/adapters/wdk": ["../dist/adapters/wdk.d.ts"]
+    }
+  },
+  "include": ["consumer.ts"]
+}

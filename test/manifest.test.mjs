@@ -24,5 +24,5 @@ test('build(): denialCodes, kinds and verdicts match src/codes.js exactly — ne
 test('build(): contract id and module name', () => {
   const doc = build()
   assert.equal(doc.contract, 'wdk-policy-guard-manifest/1')
-  assert.equal(doc.module.package, '@flashy/wdk-policy-guard')
+  assert.equal(doc.module.package, '@flashylabs/wdk-policy-guard')
 })

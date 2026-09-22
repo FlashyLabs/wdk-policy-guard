@@ -1,17 +1,27 @@
 {
-  "name": "@flashy/wdk-policy-guard",
+  "name": "@flashylabs/wdk-policy-guard",
   "version": "0.1.0",
   "description": "A spending-policy layer for wallets built on Tether's WDK (or any wallet SDK): grade a transfer against a per-agent envelope — kind, chain, asset and destination allowlists, a per-transaction cap, a daily cap, an auto-approve ceiling — before it signs. ALLOW, ESCALATE or DENY, with a reason.",
   "type": "module",
   "main": "./src/index.js",
+  "types": "./dist/index.d.ts",
   "exports": {
-    ".": "./src/index.js",
-    "./adapters/wdk": "./src/adapters/wdk.js"
+    ".": {
+      "types": "./dist/index.d.ts",
+      "default": "./src/index.js"
+    },
+    "./adapters/wdk": {
+      "types": "./dist/adapters/wdk.d.ts",
+      "default": "./src/adapters/wdk.js"
+    }
   },
   "scripts": {
     "test": "node --test test/*.test.mjs",
     "manifest": "node src/manifest.js --write",
-    "check": "node src/manifest.js --check"
+    "check": "node src/manifest.js --check",
+    "build:types": "tsc -p tsconfig.json",
+    "test:types": "npm run build:types && tsc -p test-types/tsconfig.json",
+    "prepublishOnly": "npm run build:types"
   },
   "keywords": [
     "wdk",
@@ -30,6 +40,8 @@
   "homepage": "https://github.com/FlashyLabs/wdk-policy-guard#readme",
   "bugs": { "url": "https://github.com/FlashyLabs/wdk-policy-guard/issues" },
   "engines": { "node": ">=20" },
-  "devDependencies": {},
-  "files": ["src", "LICENSE", "README.md", "CHANGELOG.md"]
+  "devDependencies": {
+    "typescript": "^5.9.0"
+  },
+  "files": ["src", "dist", "LICENSE", "README.md", "CHANGELOG.md"]
 }
