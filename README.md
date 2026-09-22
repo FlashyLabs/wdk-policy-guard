@@ -6,6 +6,8 @@ A spending-policy layer for wallets built on [Tether's WDK](https://github.com/t
 [![license](https://img.shields.io/badge/license-Apache--2.0-blue.svg)](./LICENSE)
 [![node](https://img.shields.io/badge/node-%3E%3D20-brightgreen.svg)](https://nodejs.org)
 
+Built by [Flashy Labs](https://flashyos.com) — part of the open-source toolkit we ship for teams building on Tether's WDK. Its sibling package is [`@flashy/wdk-staking-kit`](https://github.com/FlashyLabs/wdk-staking-kit).
+
 ## Why this exists
 
 WDK ships a policy engine with denial codes, but nothing that grades a transfer against **per-agent** limits before it reaches a chain — daily caps, an allowlist of destinations, an amount under which nobody has to be asked. Any team giving an AI agent a wallet needs exactly this, and building it from scratch is the same twenty lines of careful BigInt arithmetic every time, usually written once, under deadline, and never given the test coverage the money it protects deserves.
@@ -134,3 +136,7 @@ See [`CONTRIBUTING.md`](CONTRIBUTING.md).
 ## License
 
 [Apache-2.0](./LICENSE) © 2026 Flashy Labs
+
+---
+
+Built by [Flashy Labs](https://flashyos.com), the mesh platform for organisations' agents. If something here is broken, unclear, or just interesting, [open an issue](https://github.com/FlashyLabs/wdk-policy-guard/issues) — we read them.
