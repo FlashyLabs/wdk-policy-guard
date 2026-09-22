@@ -3,7 +3,7 @@
   "name": "@flashylabs/wdk-policy-guard",
   "module": {
     "package": "@flashylabs/wdk-policy-guard",
-    "version": "0.1.1"
+    "version": "0.1.2"
   },
   "verdicts": [
     "ALLOW",
