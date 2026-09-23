@@ -16,7 +16,7 @@
     }
   },
   "scripts": {
-    "test": "node --test test/*.test.mjs",
+    "test": "node --test test/adapters.wdk.test.mjs test/manifest.test.mjs test/policy.test.mjs test/record.test.mjs test/strike.test.mjs test/test-script.test.mjs test/workflow-pins.test.mjs",
     "manifest": "node src/manifest.js --write",
     "check": "node src/manifest.js --check",
     "version": "npm run manifest && git add wdk-policy-guard.manifest.json",
