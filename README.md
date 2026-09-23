@@ -118,6 +118,60 @@ Every one of these is a real test in [`test/policy.test.mjs`](test/policy.test.m
 
 `validateEnvelope()` also refuses an envelope whose `autoApproveMax` exceeds its `perTxMax`, or whose `perTxMax` exceeds its `dailyMax` — a self-contradictory envelope is caught before it can silently allow more than it claims to.
 
+## Check your own implementation against ours
+
+The rules above are published as a **conformance corpus**: 44 cases, 31 of them
+refusals, as data rather than as our test suite. Point it at any executable, in
+any language:
+
+```bash
+# from a clone
+npx @flashyos/conformance-kit \
+  conformance/policy-guard-1.json -- ./my-policy-engine
+
+# or from an install, where the corpus ships inside the package
+npx @flashyos/conformance-kit \
+  node_modules/@flashylabs/wdk-policy-guard/conformance/policy-guard-1.json \
+  -- ./my-policy-engine
+```
+
+Both work offline. The corpus is a file in the package, not a URL of ours —
+a checker that depends on the party being checked is one you would be right to
+refuse.
+
+Your program reads one JSON object per line and writes one per line. That is
+the whole interface — no bindings, no SDK, no import of ours:
+
+```
+in   { "id": "per-tx-cap-exact", "set": "caps", "input": {…}, "context": { "envelope": {…} } }
+out  { "id": "per-tx-cap-exact", "verdict": "ESCALATE" }
+```
+
+[`examples/adapter.mjs`](examples/adapter.mjs) is this package doing exactly
+that, in about twenty lines.
+
+**`ALLOW` and `ESCALATE` are different answers.** `ESCALATE` means a human is
+asked before anything is signed, and an implementation that folds it into
+"allowed" signs what a person was meant to see. That is why the corpus declares
+a three-outcome vocabulary rather than a boolean — the case a pass/fail corpus
+cannot express is the one worth checking.
+
+The edges are the point. Any two policy engines agree that a small transfer
+inside an envelope is allowed; they disagree about an amount exactly equal to a
+cap, an asset address in the wrong case, a swap with no destination, and an
+amount larger than a double can represent. The corpus is those edges, and one
+case exceeds a cap by exactly one at a magnitude where floating point cannot
+tell the two apart.
+
+**The most useful thing you can send us is a disagreement.** Two
+implementations that have never met, agreeing about what to refuse, is the only
+real evidence a specification says what it means — and where they disagree, one
+of us is wrong and it is not always you.
+
+The corpus is generated from [`conformance/cases.mjs`](conformance/cases.mjs)
+by `npm run conformance`, and `npm run conformance:check` fails if the
+committed copy has drifted.
+
 ## Design principles
 
 - **Amounts are always strings, in base units.** Never a JS number. A comparison on floats is how a cap stops being a cap — see `ARCHITECTURE.md` for the specific failure this avoids.

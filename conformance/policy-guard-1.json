@@ -1,0 +1,1537 @@
+{
+  "contract": "conformance/1",
+  "profile": "policy-guard/1",
+  "version": "0.1.2",
+  "license": "Apache-2.0",
+  "source": "https://github.com/flashylabs/wdk-policy-guard",
+  "about": "A conformance corpus for an agent spending policy, in one shape, for an implementation in any language. Any two policy engines agree that a small transfer inside an envelope is allowed; they disagree at the edges, and the edges are where money moves by accident. Most of this corpus is refusals, and the refusals are the substance. Generated from conformance/cases.mjs — regenerated, never hand-edited.",
+  "protocol": {
+    "about": "One JSON object per line in, one per line out — so a runner needs no bindings and works with any executable.",
+    "stdin": {
+      "id": "string",
+      "set": "string",
+      "input": "the spend being graded, or for an accept/refuse set, the document",
+      "context": "optional — what the judgement is made AGAINST: { envelope, usedToday }"
+    },
+    "stdout": {
+      "id": "string",
+      "verdict": "one of the set's declared `outcomes` — for a `decide` set",
+      "valid": "boolean — for a `validate` set",
+      "codes": "string[] — optional; compared only where the case expects them, and extra codes are allowed"
+    }
+  },
+  "notes": [
+    "A `decide` set names its `outcomes` in the bundle. ALLOW and ESCALATE are different answers: ESCALATE means a human is asked before anything is signed, and an implementation folding it into \"allowed\" signs what a person was meant to see.",
+    "Amounts are base-unit integer strings and are compared as arbitrary-precision integers. One case exceeds a cap by one at a magnitude a double cannot represent; an implementation using floating point allows it.",
+    "A cap is a ceiling, not a bound. An amount exactly equal to a cap is inside it.",
+    "Asset and destination allowlists are compared case-insensitively. The same contract, checksummed and not, is the same contract."
+  ],
+  "sets": [
+    {
+      "name": "records",
+      "kind": "decide",
+      "outcomes": [
+        "ALLOW",
+        "ESCALATE",
+        "DENY"
+      ],
+      "about": "A spend this profile cannot describe is refused, never guessed at.",
+      "allow": 2,
+      "escalate": 0,
+      "deny": 14,
+      "cases": [
+        {
+          "id": "not-an-object",
+          "why": "a record is an object",
+          "input": "transfer",
+          "context": {
+            "envelope": {
+              "chain": "evm:84532",
+              "kinds": [
+                "transfer",
+                "swap",
+                "bridge"
+              ],
+              "assets": [
+                "native",
+                "0xabc0000000000000000000000000000000000001"
+              ],
+              "destinations": [
+                "0xdest000000000000000000000000000000000001"
+              ],
+              "perTxMax": "1000",
+              "dailyMax": "5000",
+              "autoApproveMax": "100"
+            }
+          },
+          "expect": {
+            "verdict": "DENY",
+            "codes": [
+              "INVALID_RECORD"
+            ]
+          }
+        },
+        {
+          "id": "null-record",
+          "why": "null is not a record",
+          "input": null,
+          "context": {
+            "envelope": {
+              "chain": "evm:84532",
+              "kinds": [
+                "transfer",
+                "swap",
+                "bridge"
+              ],
+              "assets": [
+                "native",
+                "0xabc0000000000000000000000000000000000001"
+              ],
+              "destinations": [
+                "0xdest000000000000000000000000000000000001"
+              ],
+              "perTxMax": "1000",
+              "dailyMax": "5000",
+              "autoApproveMax": "100"
+            }
+          },
+          "expect": {
+            "verdict": "DENY",
+            "codes": [
+              "INVALID_RECORD"
+            ]
+          }
+        },
+        {
+          "id": "unknown-kind",
+          "why": "kind is one of transfer, swap, bridge",
+          "input": {
+            "kind": "mint",
+            "chain": "evm:84532",
+            "asset": "native",
+            "amount": "50",
+            "destination": "0xdest000000000000000000000000000000000001"
+          },
+          "context": {
+            "envelope": {
+              "chain": "evm:84532",
+              "kinds": [
+                "transfer",
+                "swap",
+                "bridge"
+              ],
+              "assets": [
+                "native",
+                "0xabc0000000000000000000000000000000000001"
+              ],
+              "destinations": [
+                "0xdest000000000000000000000000000000000001"
+              ],
+              "perTxMax": "1000",
+              "dailyMax": "5000",
+              "autoApproveMax": "100"
+            }
+          },
+          "expect": {
+            "verdict": "DENY",
+            "codes": [
+              "INVALID_RECORD"
+            ]
+          }
+        },
+        {
+          "id": "chain-without-family",
+          "why": "chain is <family>:<id>",
+          "input": {
+            "kind": "transfer",
+            "chain": "84532",
+            "asset": "native",
+            "amount": "50",
+            "destination": "0xdest000000000000000000000000000000000001"
+          },
+          "context": {
+            "envelope": {
+              "chain": "evm:84532",
+              "kinds": [
+                "transfer",
+                "swap",
+                "bridge"
+              ],
+              "assets": [
+                "native",
+                "0xabc0000000000000000000000000000000000001"
+              ],
+              "destinations": [
+                "0xdest000000000000000000000000000000000001"
+              ],
+              "perTxMax": "1000",
+              "dailyMax": "5000",
+              "autoApproveMax": "100"
+            }
+          },
+          "expect": {
+            "verdict": "DENY",
+            "codes": [
+              "INVALID_RECORD"
+            ]
+          }
+        },
+        {
+          "id": "chain-family-uppercase",
+          "why": "the family is lower case",
+          "input": {
+            "kind": "transfer",
+            "chain": "EVM:84532",
+            "asset": "native",
+            "amount": "50",
+            "destination": "0xdest000000000000000000000000000000000001"
+          },
+          "context": {
+            "envelope": {
+              "chain": "evm:84532",
+              "kinds": [
+                "transfer",
+                "swap",
+                "bridge"
+              ],
+              "assets": [
+                "native",
+                "0xabc0000000000000000000000000000000000001"
+              ],
+              "destinations": [
+                "0xdest000000000000000000000000000000000001"
+              ],
+              "perTxMax": "1000",
+              "dailyMax": "5000",
+              "autoApproveMax": "100"
+            }
+          },
+          "expect": {
+            "verdict": "DENY",
+            "codes": [
+              "INVALID_RECORD"
+            ]
+          }
+        },
+        {
+          "id": "empty-asset",
+          "why": "asset is an exact address or \"native\"",
+          "input": {
+            "kind": "transfer",
+            "chain": "evm:84532",
+            "asset": "",
+            "amount": "50",
+            "destination": "0xdest000000000000000000000000000000000001"
+          },
+          "context": {
+            "envelope": {
+              "chain": "evm:84532",
+              "kinds": [
+                "transfer",
+                "swap",
+                "bridge"
+              ],
+              "assets": [
+                "native",
+                "0xabc0000000000000000000000000000000000001"
+              ],
+              "destinations": [
+                "0xdest000000000000000000000000000000000001"
+              ],
+              "perTxMax": "1000",
+              "dailyMax": "5000",
+              "autoApproveMax": "100"
+            }
+          },
+          "expect": {
+            "verdict": "DENY",
+            "codes": [
+              "INVALID_RECORD"
+            ]
+          }
+        },
+        {
+          "id": "amount-not-a-string",
+          "why": "a number is not a base-unit string — this is where a float cap stops being a cap",
+          "input": {
+            "kind": "transfer",
+            "chain": "evm:84532",
+            "asset": "native",
+            "amount": 50,
+            "destination": "0xdest000000000000000000000000000000000001"
+          },
+          "context": {
+            "envelope": {
+              "chain": "evm:84532",
+              "kinds": [
+                "transfer",
+                "swap",
+                "bridge"
+              ],
+              "assets": [
+                "native",
+                "0xabc0000000000000000000000000000000000001"
+              ],
+              "destinations": [
+                "0xdest000000000000000000000000000000000001"
+              ],
+              "perTxMax": "1000",
+              "dailyMax": "5000",
+              "autoApproveMax": "100"
+            }
+          },
+          "expect": {
+            "verdict": "DENY",
+            "codes": [
+              "INVALID_AMOUNT"
+            ]
+          }
+        },
+        {
+          "id": "amount-decimal",
+          "why": "base units are integers",
+          "input": {
+            "kind": "transfer",
+            "chain": "evm:84532",
+            "asset": "native",
+            "amount": "1.5",
+            "destination": "0xdest000000000000000000000000000000000001"
+          },
+          "context": {
+            "envelope": {
+              "chain": "evm:84532",
+              "kinds": [
+                "transfer",
+                "swap",
+                "bridge"
+              ],
+              "assets": [
+                "native",
+                "0xabc0000000000000000000000000000000000001"
+              ],
+              "destinations": [
+                "0xdest000000000000000000000000000000000001"
+              ],
+              "perTxMax": "1000",
+              "dailyMax": "5000",
+              "autoApproveMax": "100"
+            }
+          },
+          "expect": {
+            "verdict": "DENY",
+            "codes": [
+              "INVALID_AMOUNT"
+            ]
+          }
+        },
+        {
+          "id": "amount-negative",
+          "why": "a negative amount is not a spend",
+          "input": {
+            "kind": "transfer",
+            "chain": "evm:84532",
+            "asset": "native",
+            "amount": "-1",
+            "destination": "0xdest000000000000000000000000000000000001"
+          },
+          "context": {
+            "envelope": {
+              "chain": "evm:84532",
+              "kinds": [
+                "transfer",
+                "swap",
+                "bridge"
+              ],
+              "assets": [
+                "native",
+                "0xabc0000000000000000000000000000000000001"
+              ],
+              "destinations": [
+                "0xdest000000000000000000000000000000000001"
+              ],
+              "perTxMax": "1000",
+              "dailyMax": "5000",
+              "autoApproveMax": "100"
+            }
+          },
+          "expect": {
+            "verdict": "DENY",
+            "codes": [
+              "INVALID_AMOUNT"
+            ]
+          }
+        },
+        {
+          "id": "amount-hex",
+          "why": "base units are decimal",
+          "input": {
+            "kind": "transfer",
+            "chain": "evm:84532",
+            "asset": "native",
+            "amount": "0x32",
+            "destination": "0xdest000000000000000000000000000000000001"
+          },
+          "context": {
+            "envelope": {
+              "chain": "evm:84532",
+              "kinds": [
+                "transfer",
+                "swap",
+                "bridge"
+              ],
+              "assets": [
+                "native",
+                "0xabc0000000000000000000000000000000000001"
+              ],
+              "destinations": [
+                "0xdest000000000000000000000000000000000001"
+              ],
+              "perTxMax": "1000",
+              "dailyMax": "5000",
+              "autoApproveMax": "100"
+            }
+          },
+          "expect": {
+            "verdict": "DENY",
+            "codes": [
+              "INVALID_AMOUNT"
+            ]
+          }
+        },
+        {
+          "id": "amount-empty",
+          "why": "an empty string is not an amount",
+          "input": {
+            "kind": "transfer",
+            "chain": "evm:84532",
+            "asset": "native",
+            "amount": "",
+            "destination": "0xdest000000000000000000000000000000000001"
+          },
+          "context": {
+            "envelope": {
+              "chain": "evm:84532",
+              "kinds": [
+                "transfer",
+                "swap",
+                "bridge"
+              ],
+              "assets": [
+                "native",
+                "0xabc0000000000000000000000000000000000001"
+              ],
+              "destinations": [
+                "0xdest000000000000000000000000000000000001"
+              ],
+              "perTxMax": "1000",
+              "dailyMax": "5000",
+              "autoApproveMax": "100"
+            }
+          },
+          "expect": {
+            "verdict": "DENY",
+            "codes": [
+              "INVALID_AMOUNT"
+            ]
+          }
+        },
+        {
+          "id": "transfer-without-destination",
+          "why": "only a swap may omit one",
+          "input": {
+            "kind": "transfer",
+            "chain": "evm:84532",
+            "asset": "native",
+            "amount": "50",
+            "destination": null
+          },
+          "context": {
+            "envelope": {
+              "chain": "evm:84532",
+              "kinds": [
+                "transfer",
+                "swap",
+                "bridge"
+              ],
+              "assets": [
+                "native",
+                "0xabc0000000000000000000000000000000000001"
+              ],
+              "destinations": [
+                "0xdest000000000000000000000000000000000001"
+              ],
+              "perTxMax": "1000",
+              "dailyMax": "5000",
+              "autoApproveMax": "100"
+            }
+          },
+          "expect": {
+            "verdict": "DENY",
+            "codes": [
+              "INVALID_RECORD"
+            ]
+          }
+        },
+        {
+          "id": "bridge-without-destination",
+          "why": "a bridge has a destination",
+          "input": {
+            "kind": "bridge",
+            "chain": "evm:84532",
+            "asset": "native",
+            "amount": "50",
+            "destination": null
+          },
+          "context": {
+            "envelope": {
+              "chain": "evm:84532",
+              "kinds": [
+                "transfer",
+                "swap",
+                "bridge"
+              ],
+              "assets": [
+                "native",
+                "0xabc0000000000000000000000000000000000001"
+              ],
+              "destinations": [
+                "0xdest000000000000000000000000000000000001"
+              ],
+              "perTxMax": "1000",
+              "dailyMax": "5000",
+              "autoApproveMax": "100"
+            }
+          },
+          "expect": {
+            "verdict": "DENY",
+            "codes": [
+              "INVALID_RECORD"
+            ]
+          }
+        },
+        {
+          "id": "swap-with-destination",
+          "why": "a swap has none, and a record carrying one is not the record this grades",
+          "input": {
+            "kind": "swap",
+            "chain": "evm:84532",
+            "asset": "native",
+            "amount": "50",
+            "destination": "0xdest000000000000000000000000000000000001"
+          },
+          "context": {
+            "envelope": {
+              "chain": "evm:84532",
+              "kinds": [
+                "transfer",
+                "swap",
+                "bridge"
+              ],
+              "assets": [
+                "native",
+                "0xabc0000000000000000000000000000000000001"
+              ],
+              "destinations": [
+                "0xdest000000000000000000000000000000000001"
+              ],
+              "perTxMax": "1000",
+              "dailyMax": "5000",
+              "autoApproveMax": "100"
+            }
+          },
+          "expect": {
+            "verdict": "DENY",
+            "codes": [
+              "INVALID_RECORD"
+            ]
+          }
+        },
+        {
+          "id": "amount-leading-zeros",
+          "why": "007 is seven; a string comparison would disagree",
+          "input": {
+            "kind": "transfer",
+            "chain": "evm:84532",
+            "asset": "native",
+            "amount": "0050",
+            "destination": "0xdest000000000000000000000000000000000001"
+          },
+          "context": {
+            "envelope": {
+              "chain": "evm:84532",
+              "kinds": [
+                "transfer",
+                "swap",
+                "bridge"
+              ],
+              "assets": [
+                "native",
+                "0xabc0000000000000000000000000000000000001"
+              ],
+              "destinations": [
+                "0xdest000000000000000000000000000000000001"
+              ],
+              "perTxMax": "1000",
+              "dailyMax": "5000",
+              "autoApproveMax": "100"
+            }
+          },
+          "expect": {
+            "verdict": "ALLOW"
+          }
+        },
+        {
+          "id": "amount-zero",
+          "why": "zero is a well-formed amount and under every cap",
+          "input": {
+            "kind": "transfer",
+            "chain": "evm:84532",
+            "asset": "native",
+            "amount": "0",
+            "destination": "0xdest000000000000000000000000000000000001"
+          },
+          "context": {
+            "envelope": {
+              "chain": "evm:84532",
+              "kinds": [
+                "transfer",
+                "swap",
+                "bridge"
+              ],
+              "assets": [
+                "native",
+                "0xabc0000000000000000000000000000000000001"
+              ],
+              "destinations": [
+                "0xdest000000000000000000000000000000000001"
+              ],
+              "perTxMax": "1000",
+              "dailyMax": "5000",
+              "autoApproveMax": "100"
+            }
+          },
+          "expect": {
+            "verdict": "ALLOW"
+          }
+        }
+      ]
+    },
+    {
+      "name": "envelopes",
+      "kind": "decide",
+      "outcomes": [
+        "ALLOW",
+        "ESCALATE",
+        "DENY"
+      ],
+      "about": "The envelope, and the four ways out of it.",
+      "allow": 3,
+      "escalate": 0,
+      "deny": 6,
+      "cases": [
+        {
+          "id": "no-envelope",
+          "why": "nothing is permitted before a limit is set",
+          "input": {
+            "kind": "transfer",
+            "chain": "evm:84532",
+            "asset": "native",
+            "amount": "50",
+            "destination": "0xdest000000000000000000000000000000000001"
+          },
+          "context": {
+            "envelope": null
+          },
+          "expect": {
+            "verdict": "DENY",
+            "codes": [
+              "NO_ENVELOPE"
+            ]
+          }
+        },
+        {
+          "id": "envelope-for-another-chain",
+          "why": "an envelope is per chain",
+          "input": {
+            "kind": "transfer",
+            "chain": "tron:nile",
+            "asset": "native",
+            "amount": "50",
+            "destination": "0xdest000000000000000000000000000000000001"
+          },
+          "context": {
+            "envelope": {
+              "chain": "evm:84532",
+              "kinds": [
+                "transfer",
+                "swap",
+                "bridge"
+              ],
+              "assets": [
+                "native",
+                "0xabc0000000000000000000000000000000000001"
+              ],
+              "destinations": [
+                "0xdest000000000000000000000000000000000001"
+              ],
+              "perTxMax": "1000",
+              "dailyMax": "5000",
+              "autoApproveMax": "100"
+            }
+          },
+          "expect": {
+            "verdict": "DENY",
+            "codes": [
+              "NO_ENVELOPE"
+            ]
+          }
+        },
+        {
+          "id": "envelope-inactive",
+          "why": "a revoked envelope permits nothing, whatever it still says",
+          "input": {
+            "kind": "transfer",
+            "chain": "evm:84532",
+            "asset": "native",
+            "amount": "50",
+            "destination": "0xdest000000000000000000000000000000000001"
+          },
+          "context": {
+            "envelope": {
+              "chain": "evm:84532",
+              "kinds": [
+                "transfer",
+                "swap",
+                "bridge"
+              ],
+              "assets": [
+                "native",
+                "0xabc0000000000000000000000000000000000001"
+              ],
+              "destinations": [
+                "0xdest000000000000000000000000000000000001"
+              ],
+              "perTxMax": "1000",
+              "dailyMax": "5000",
+              "autoApproveMax": "100",
+              "active": false
+            }
+          },
+          "expect": {
+            "verdict": "DENY",
+            "codes": [
+              "ENVELOPE_INACTIVE"
+            ]
+          }
+        },
+        {
+          "id": "kind-not-permitted",
+          "why": "the kinds list is an allowlist",
+          "input": {
+            "kind": "bridge",
+            "chain": "evm:84532",
+            "asset": "native",
+            "amount": "50",
+            "destination": "0xdest000000000000000000000000000000000001"
+          },
+          "context": {
+            "envelope": {
+              "chain": "evm:84532",
+              "kinds": [
+                "transfer"
+              ],
+              "assets": [
+                "native",
+                "0xabc0000000000000000000000000000000000001"
+              ],
+              "destinations": [
+                "0xdest000000000000000000000000000000000001"
+              ],
+              "perTxMax": "1000",
+              "dailyMax": "5000",
+              "autoApproveMax": "100"
+            }
+          },
+          "expect": {
+            "verdict": "DENY",
+            "codes": [
+              "KIND_NOT_PERMITTED"
+            ]
+          }
+        },
+        {
+          "id": "asset-not-permitted",
+          "why": "the assets list is an allowlist",
+          "input": {
+            "kind": "transfer",
+            "chain": "evm:84532",
+            "asset": "0xfff0000000000000000000000000000000000009",
+            "amount": "50",
+            "destination": "0xdest000000000000000000000000000000000001"
+          },
+          "context": {
+            "envelope": {
+              "chain": "evm:84532",
+              "kinds": [
+                "transfer",
+                "swap",
+                "bridge"
+              ],
+              "assets": [
+                "native",
+                "0xabc0000000000000000000000000000000000001"
+              ],
+              "destinations": [
+                "0xdest000000000000000000000000000000000001"
+              ],
+              "perTxMax": "1000",
+              "dailyMax": "5000",
+              "autoApproveMax": "100"
+            }
+          },
+          "expect": {
+            "verdict": "DENY",
+            "codes": [
+              "ASSET_NOT_PERMITTED"
+            ]
+          }
+        },
+        {
+          "id": "asset-matches-case-insensitively",
+          "why": "the same contract, checksummed and not, is the same contract — an implementation comparing raw strings refuses a permitted asset",
+          "input": {
+            "kind": "transfer",
+            "chain": "evm:84532",
+            "asset": "0xABC0000000000000000000000000000000000001",
+            "amount": "50",
+            "destination": "0xdest000000000000000000000000000000000001"
+          },
+          "context": {
+            "envelope": {
+              "chain": "evm:84532",
+              "kinds": [
+                "transfer",
+                "swap",
+                "bridge"
+              ],
+              "assets": [
+                "native",
+                "0xabc0000000000000000000000000000000000001"
+              ],
+              "destinations": [
+                "0xdest000000000000000000000000000000000001"
+              ],
+              "perTxMax": "1000",
+              "dailyMax": "5000",
+              "autoApproveMax": "100"
+            }
+          },
+          "expect": {
+            "verdict": "ALLOW"
+          }
+        },
+        {
+          "id": "destination-not-permitted",
+          "why": "the destinations list is an allowlist",
+          "input": {
+            "kind": "transfer",
+            "chain": "evm:84532",
+            "asset": "native",
+            "amount": "50",
+            "destination": "0xbad0000000000000000000000000000000000009"
+          },
+          "context": {
+            "envelope": {
+              "chain": "evm:84532",
+              "kinds": [
+                "transfer",
+                "swap",
+                "bridge"
+              ],
+              "assets": [
+                "native",
+                "0xabc0000000000000000000000000000000000001"
+              ],
+              "destinations": [
+                "0xdest000000000000000000000000000000000001"
+              ],
+              "perTxMax": "1000",
+              "dailyMax": "5000",
+              "autoApproveMax": "100"
+            }
+          },
+          "expect": {
+            "verdict": "DENY",
+            "codes": [
+              "DESTINATION_NOT_PERMITTED"
+            ]
+          }
+        },
+        {
+          "id": "destination-matches-case-insensitively",
+          "why": "the same address, checksummed and not",
+          "input": {
+            "kind": "transfer",
+            "chain": "evm:84532",
+            "asset": "native",
+            "amount": "50",
+            "destination": "0xDEST000000000000000000000000000000000001"
+          },
+          "context": {
+            "envelope": {
+              "chain": "evm:84532",
+              "kinds": [
+                "transfer",
+                "swap",
+                "bridge"
+              ],
+              "assets": [
+                "native",
+                "0xabc0000000000000000000000000000000000001"
+              ],
+              "destinations": [
+                "0xdest000000000000000000000000000000000001"
+              ],
+              "perTxMax": "1000",
+              "dailyMax": "5000",
+              "autoApproveMax": "100"
+            }
+          },
+          "expect": {
+            "verdict": "ALLOW"
+          }
+        },
+        {
+          "id": "swap-skips-the-destination-allowlist",
+          "why": "a swap has no destination to check, so the allowlist does not apply to it — an implementation applying it uniformly denies every swap",
+          "input": {
+            "kind": "swap",
+            "chain": "evm:84532",
+            "asset": "native",
+            "amount": "50",
+            "destination": null
+          },
+          "context": {
+            "envelope": {
+              "chain": "evm:84532",
+              "kinds": [
+                "transfer",
+                "swap",
+                "bridge"
+              ],
+              "assets": [
+                "native",
+                "0xabc0000000000000000000000000000000000001"
+              ],
+              "destinations": [],
+              "perTxMax": "1000",
+              "dailyMax": "5000",
+              "autoApproveMax": "100"
+            }
+          },
+          "expect": {
+            "verdict": "ALLOW"
+          }
+        }
+      ]
+    },
+    {
+      "name": "caps",
+      "kind": "decide",
+      "outcomes": [
+        "ALLOW",
+        "ESCALATE",
+        "DENY"
+      ],
+      "about": "Per-transaction and daily caps, and what happens exactly on them.",
+      "allow": 0,
+      "escalate": 2,
+      "deny": 4,
+      "cases": [
+        {
+          "id": "per-tx-cap-exceeded",
+          "why": "over the per-transaction cap",
+          "input": {
+            "kind": "transfer",
+            "chain": "evm:84532",
+            "asset": "native",
+            "amount": "1001",
+            "destination": "0xdest000000000000000000000000000000000001"
+          },
+          "context": {
+            "envelope": {
+              "chain": "evm:84532",
+              "kinds": [
+                "transfer",
+                "swap",
+                "bridge"
+              ],
+              "assets": [
+                "native",
+                "0xabc0000000000000000000000000000000000001"
+              ],
+              "destinations": [
+                "0xdest000000000000000000000000000000000001"
+              ],
+              "perTxMax": "1000",
+              "dailyMax": "5000",
+              "autoApproveMax": "100"
+            }
+          },
+          "expect": {
+            "verdict": "DENY",
+            "codes": [
+              "PER_TX_CAP"
+            ]
+          }
+        },
+        {
+          "id": "per-tx-cap-exact",
+          "why": "the cap is a ceiling, not a bound: an amount EQUAL to it is inside. Off-by-one here is the difference between a cap that works and one that refuses a legitimate spend",
+          "input": {
+            "kind": "transfer",
+            "chain": "evm:84532",
+            "asset": "native",
+            "amount": "1000",
+            "destination": "0xdest000000000000000000000000000000000001"
+          },
+          "context": {
+            "envelope": {
+              "chain": "evm:84532",
+              "kinds": [
+                "transfer",
+                "swap",
+                "bridge"
+              ],
+              "assets": [
+                "native",
+                "0xabc0000000000000000000000000000000000001"
+              ],
+              "destinations": [
+                "0xdest000000000000000000000000000000000001"
+              ],
+              "perTxMax": "1000",
+              "dailyMax": "5000",
+              "autoApproveMax": "100"
+            }
+          },
+          "expect": {
+            "verdict": "ESCALATE"
+          }
+        },
+        {
+          "id": "per-tx-cap-beyond-double-precision",
+          "why": "the amount exceeds the cap by one at a magnitude where a double cannot tell them apart. An implementation using floating point ALLOWS this; base-unit integers deny it",
+          "input": {
+            "kind": "transfer",
+            "chain": "evm:84532",
+            "asset": "native",
+            "amount": "9007199254740993",
+            "destination": "0xdest000000000000000000000000000000000001"
+          },
+          "context": {
+            "envelope": {
+              "chain": "evm:84532",
+              "kinds": [
+                "transfer",
+                "swap",
+                "bridge"
+              ],
+              "assets": [
+                "native",
+                "0xabc0000000000000000000000000000000000001"
+              ],
+              "destinations": [
+                "0xdest000000000000000000000000000000000001"
+              ],
+              "perTxMax": "9007199254740992",
+              "dailyMax": "99999999999999999999",
+              "autoApproveMax": "1"
+            }
+          },
+          "expect": {
+            "verdict": "DENY",
+            "codes": [
+              "PER_TX_CAP"
+            ]
+          }
+        },
+        {
+          "id": "daily-cap-exceeded",
+          "why": "what the day already used counts toward it",
+          "input": {
+            "kind": "transfer",
+            "chain": "evm:84532",
+            "asset": "native",
+            "amount": "600",
+            "destination": "0xdest000000000000000000000000000000000001"
+          },
+          "context": {
+            "envelope": {
+              "chain": "evm:84532",
+              "kinds": [
+                "transfer",
+                "swap",
+                "bridge"
+              ],
+              "assets": [
+                "native",
+                "0xabc0000000000000000000000000000000000001"
+              ],
+              "destinations": [
+                "0xdest000000000000000000000000000000000001"
+              ],
+              "perTxMax": "1000",
+              "dailyMax": "1000",
+              "autoApproveMax": "100"
+            },
+            "usedToday": "500"
+          },
+          "expect": {
+            "verdict": "DENY",
+            "codes": [
+              "DAILY_CAP"
+            ]
+          }
+        },
+        {
+          "id": "daily-cap-exact",
+          "why": "used + amount EQUAL to the daily cap is inside it",
+          "input": {
+            "kind": "transfer",
+            "chain": "evm:84532",
+            "asset": "native",
+            "amount": "500",
+            "destination": "0xdest000000000000000000000000000000000001"
+          },
+          "context": {
+            "envelope": {
+              "chain": "evm:84532",
+              "kinds": [
+                "transfer",
+                "swap",
+                "bridge"
+              ],
+              "assets": [
+                "native",
+                "0xabc0000000000000000000000000000000000001"
+              ],
+              "destinations": [
+                "0xdest000000000000000000000000000000000001"
+              ],
+              "perTxMax": "1000",
+              "dailyMax": "1000",
+              "autoApproveMax": "100"
+            },
+            "usedToday": "500"
+          },
+          "expect": {
+            "verdict": "ESCALATE"
+          }
+        },
+        {
+          "id": "per-tx-checked-before-daily",
+          "why": "both caps are broken; the code reported is the per-transaction one. An implementation checking them in the other order reports DAILY_CAP and a reader learns the wrong thing about why they were refused",
+          "input": {
+            "kind": "transfer",
+            "chain": "evm:84532",
+            "asset": "native",
+            "amount": "5000",
+            "destination": "0xdest000000000000000000000000000000000001"
+          },
+          "context": {
+            "envelope": {
+              "chain": "evm:84532",
+              "kinds": [
+                "transfer",
+                "swap",
+                "bridge"
+              ],
+              "assets": [
+                "native",
+                "0xabc0000000000000000000000000000000000001"
+              ],
+              "destinations": [
+                "0xdest000000000000000000000000000000000001"
+              ],
+              "perTxMax": "1000",
+              "dailyMax": "2000",
+              "autoApproveMax": "100"
+            },
+            "usedToday": "1900"
+          },
+          "expect": {
+            "verdict": "DENY",
+            "codes": [
+              "PER_TX_CAP"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "ceiling",
+      "kind": "decide",
+      "outcomes": [
+        "ALLOW",
+        "ESCALATE",
+        "DENY"
+      ],
+      "about": "The ceiling under which nobody is asked.",
+      "allow": 2,
+      "escalate": 2,
+      "deny": 0,
+      "cases": [
+        {
+          "id": "under-the-ceiling-allows",
+          "why": "below autoApproveMax, nobody is asked",
+          "input": {
+            "kind": "transfer",
+            "chain": "evm:84532",
+            "asset": "native",
+            "amount": "99",
+            "destination": "0xdest000000000000000000000000000000000001"
+          },
+          "context": {
+            "envelope": {
+              "chain": "evm:84532",
+              "kinds": [
+                "transfer",
+                "swap",
+                "bridge"
+              ],
+              "assets": [
+                "native",
+                "0xabc0000000000000000000000000000000000001"
+              ],
+              "destinations": [
+                "0xdest000000000000000000000000000000000001"
+              ],
+              "perTxMax": "1000",
+              "dailyMax": "5000",
+              "autoApproveMax": "100"
+            }
+          },
+          "expect": {
+            "verdict": "ALLOW"
+          }
+        },
+        {
+          "id": "ceiling-exact-allows",
+          "why": "the ceiling is a ceiling: an amount EQUAL to autoApproveMax still auto-approves",
+          "input": {
+            "kind": "transfer",
+            "chain": "evm:84532",
+            "asset": "native",
+            "amount": "100",
+            "destination": "0xdest000000000000000000000000000000000001"
+          },
+          "context": {
+            "envelope": {
+              "chain": "evm:84532",
+              "kinds": [
+                "transfer",
+                "swap",
+                "bridge"
+              ],
+              "assets": [
+                "native",
+                "0xabc0000000000000000000000000000000000001"
+              ],
+              "destinations": [
+                "0xdest000000000000000000000000000000000001"
+              ],
+              "perTxMax": "1000",
+              "dailyMax": "5000",
+              "autoApproveMax": "100"
+            }
+          },
+          "expect": {
+            "verdict": "ALLOW"
+          }
+        },
+        {
+          "id": "over-the-ceiling-escalates",
+          "why": "the case a boolean corpus cannot express: inside the envelope, over the ceiling, so a HUMAN is asked before anything is signed. An implementation folding this into \"allowed\" signs it",
+          "input": {
+            "kind": "transfer",
+            "chain": "evm:84532",
+            "asset": "native",
+            "amount": "101",
+            "destination": "0xdest000000000000000000000000000000000001"
+          },
+          "context": {
+            "envelope": {
+              "chain": "evm:84532",
+              "kinds": [
+                "transfer",
+                "swap",
+                "bridge"
+              ],
+              "assets": [
+                "native",
+                "0xabc0000000000000000000000000000000000001"
+              ],
+              "destinations": [
+                "0xdest000000000000000000000000000000000001"
+              ],
+              "perTxMax": "1000",
+              "dailyMax": "5000",
+              "autoApproveMax": "100"
+            }
+          },
+          "expect": {
+            "verdict": "ESCALATE"
+          }
+        },
+        {
+          "id": "always-escalate-overrides-the-ceiling",
+          "why": "an envelope may ask every time, however small the spend",
+          "input": {
+            "kind": "transfer",
+            "chain": "evm:84532",
+            "asset": "native",
+            "amount": "1",
+            "destination": "0xdest000000000000000000000000000000000001"
+          },
+          "context": {
+            "envelope": {
+              "chain": "evm:84532",
+              "kinds": [
+                "transfer",
+                "swap",
+                "bridge"
+              ],
+              "assets": [
+                "native",
+                "0xabc0000000000000000000000000000000000001"
+              ],
+              "destinations": [
+                "0xdest000000000000000000000000000000000001"
+              ],
+              "perTxMax": "1000",
+              "dailyMax": "5000",
+              "autoApproveMax": "100",
+              "alwaysEscalate": true
+            }
+          },
+          "expect": {
+            "verdict": "ESCALATE"
+          }
+        }
+      ]
+    },
+    {
+      "name": "envelope-shape",
+      "kind": "validate",
+      "about": "The envelope document itself: acceptable, or not.",
+      "accept": 2,
+      "refuse": 7,
+      "cases": [
+        {
+          "id": "well-formed",
+          "why": "the baseline",
+          "input": {
+            "chain": "evm:84532",
+            "kinds": [
+              "transfer",
+              "swap",
+              "bridge"
+            ],
+            "assets": [
+              "native",
+              "0xabc0000000000000000000000000000000000001"
+            ],
+            "destinations": [
+              "0xdest000000000000000000000000000000000001"
+            ],
+            "perTxMax": "1000",
+            "dailyMax": "5000",
+            "autoApproveMax": "100"
+          },
+          "expect": {
+            "valid": true
+          }
+        },
+        {
+          "id": "envelope-not-an-object",
+          "why": "an envelope is an object",
+          "input": "evm:84532",
+          "expect": {
+            "valid": false
+          }
+        },
+        {
+          "id": "chain-missing",
+          "why": "an envelope is per chain",
+          "input": {
+            "kinds": [
+              "transfer",
+              "swap",
+              "bridge"
+            ],
+            "assets": [
+              "native",
+              "0xabc0000000000000000000000000000000000001"
+            ],
+            "destinations": [
+              "0xdest000000000000000000000000000000000001"
+            ],
+            "perTxMax": "1000",
+            "dailyMax": "5000",
+            "autoApproveMax": "100"
+          },
+          "expect": {
+            "valid": false
+          }
+        },
+        {
+          "id": "kinds-not-an-array",
+          "why": "the allowlists are arrays",
+          "input": {
+            "chain": "evm:84532",
+            "kinds": "transfer",
+            "assets": [
+              "native",
+              "0xabc0000000000000000000000000000000000001"
+            ],
+            "destinations": [
+              "0xdest000000000000000000000000000000000001"
+            ],
+            "perTxMax": "1000",
+            "dailyMax": "5000",
+            "autoApproveMax": "100"
+          },
+          "expect": {
+            "valid": false
+          }
+        },
+        {
+          "id": "cap-is-a-number",
+          "why": "caps are base-unit strings; a number is where precision goes",
+          "input": {
+            "chain": "evm:84532",
+            "kinds": [
+              "transfer",
+              "swap",
+              "bridge"
+            ],
+            "assets": [
+              "native",
+              "0xabc0000000000000000000000000000000000001"
+            ],
+            "destinations": [
+              "0xdest000000000000000000000000000000000001"
+            ],
+            "perTxMax": 1000,
+            "dailyMax": "5000",
+            "autoApproveMax": "100"
+          },
+          "expect": {
+            "valid": false
+          }
+        },
+        {
+          "id": "cap-is-decimal",
+          "why": "base units are integers",
+          "input": {
+            "chain": "evm:84532",
+            "kinds": [
+              "transfer",
+              "swap",
+              "bridge"
+            ],
+            "assets": [
+              "native",
+              "0xabc0000000000000000000000000000000000001"
+            ],
+            "destinations": [
+              "0xdest000000000000000000000000000000000001"
+            ],
+            "perTxMax": "1000",
+            "dailyMax": "5000.5",
+            "autoApproveMax": "100"
+          },
+          "expect": {
+            "valid": false
+          }
+        },
+        {
+          "id": "per-tx-above-daily",
+          "why": "a per-transaction cap above the daily cap can never be reached, so the envelope does not mean what it says",
+          "input": {
+            "chain": "evm:84532",
+            "kinds": [
+              "transfer",
+              "swap",
+              "bridge"
+            ],
+            "assets": [
+              "native",
+              "0xabc0000000000000000000000000000000000001"
+            ],
+            "destinations": [
+              "0xdest000000000000000000000000000000000001"
+            ],
+            "perTxMax": "9000",
+            "dailyMax": "5000",
+            "autoApproveMax": "100"
+          },
+          "expect": {
+            "valid": false
+          }
+        },
+        {
+          "id": "ceiling-above-per-tx",
+          "why": "an auto-approve ceiling above the per-transaction cap would auto-approve everything the cap permits — the envelope would ask nobody, ever",
+          "input": {
+            "chain": "evm:84532",
+            "kinds": [
+              "transfer",
+              "swap",
+              "bridge"
+            ],
+            "assets": [
+              "native",
+              "0xabc0000000000000000000000000000000000001"
+            ],
+            "destinations": [
+              "0xdest000000000000000000000000000000000001"
+            ],
+            "perTxMax": "1000",
+            "dailyMax": "5000",
+            "autoApproveMax": "2000"
+          },
+          "expect": {
+            "valid": false
+          }
+        },
+        {
+          "id": "ceiling-equals-per-tx",
+          "why": "equal is inside: every permitted spend auto-approves, which is a choice and not a malformed envelope",
+          "input": {
+            "chain": "evm:84532",
+            "kinds": [
+              "transfer",
+              "swap",
+              "bridge"
+            ],
+            "assets": [
+              "native",
+              "0xabc0000000000000000000000000000000000001"
+            ],
+            "destinations": [
+              "0xdest000000000000000000000000000000000001"
+            ],
+            "perTxMax": "1000",
+            "dailyMax": "5000",
+            "autoApproveMax": "1000"
+          },
+          "expect": {
+            "valid": true
+          }
+        }
+      ]
+    }
+  ]
+}
