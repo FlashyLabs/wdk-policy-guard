@@ -1,0 +1,80 @@
+{
+  "contract": "directory/1",
+  "generated": "2026-09-29",
+  "org": "org/wdk-policy-guard",
+  "nodes": [
+    {
+      "id": "org/wdk-policy-guard",
+      "kind": "org",
+      "name": "Wdk Policy Guard"
+    },
+    {
+      "id": "person/michael",
+      "kind": "person",
+      "name": "Michael Gord"
+    },
+    {
+      "id": "agent/wdk-policy-guard-maintainer",
+      "kind": "agent",
+      "name": "maintainer",
+      "for": "org/wdk-policy-guard"
+    },
+    {
+      "id": "agent/wdk-policy-guard-review",
+      "kind": "agent",
+      "name": "review",
+      "for": "org/wdk-policy-guard"
+    },
+    {
+      "id": "agent/wdk-policy-guard-release",
+      "kind": "agent",
+      "name": "release",
+      "for": "org/wdk-policy-guard"
+    },
+    {
+      "id": "agent/wdk-policy-guard-conformance",
+      "kind": "agent",
+      "name": "conformance",
+      "for": "org/wdk-policy-guard"
+    },
+    {
+      "id": "agent/wdk-policy-guard-adoption",
+      "kind": "agent",
+      "name": "adoption",
+      "for": "org/wdk-policy-guard"
+    }
+  ],
+  "edges": [
+    {
+      "from": "org/wdk-policy-guard",
+      "rel": "staffs",
+      "to": "agent/wdk-policy-guard-maintainer",
+      "by": "person/michael"
+    },
+    {
+      "from": "org/wdk-policy-guard",
+      "rel": "staffs",
+      "to": "agent/wdk-policy-guard-review",
+      "by": "person/michael"
+    },
+    {
+      "from": "org/wdk-policy-guard",
+      "rel": "staffs",
+      "to": "agent/wdk-policy-guard-release",
+      "by": "person/michael"
+    },
+    {
+      "from": "org/wdk-policy-guard",
+      "rel": "staffs",
+      "to": "agent/wdk-policy-guard-conformance",
+      "by": "person/michael"
+    },
+    {
+      "from": "org/wdk-policy-guard",
+      "rel": "staffs",
+      "to": "agent/wdk-policy-guard-adoption",
+      "by": "person/michael"
+    }
+  ],
+  "x-note": "Five agents, one per charter role. Generated from flashyos.roles.json; a live org is provisioned from the charter with provision-org-from-charter."
+}
