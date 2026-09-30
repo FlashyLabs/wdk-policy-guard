@@ -16,7 +16,7 @@
     }
   },
   "scripts": {
-    "test": "node --test test/adapters.wdk.test.mjs test/conformance.test.mjs test/manifest.test.mjs test/policy.test.mjs test/record.test.mjs test/strike.test.mjs test/test-script.test.mjs test/workflow-pins.test.mjs",
+    "test": "node --test test/adapters.wdk.test.mjs test/conformance.test.mjs test/docs-figures.test.mjs test/manifest.test.mjs test/policy.test.mjs test/record.test.mjs test/strike.test.mjs test/test-script.test.mjs test/workflow-pins.test.mjs",
     "manifest": "node src/manifest.js --write",
     "conformance": "node conformance/build.mjs",
     "conformance:check": "node conformance/build.mjs --check",

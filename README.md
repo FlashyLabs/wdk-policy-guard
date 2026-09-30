@@ -184,16 +184,16 @@ committed copy has drifted.
 
 - It does not sign anything, hold a key, or call a network. It is a pure function over data you provide.
 - It does not decide *who* may set or revoke an envelope — that's an authorization question for your own application, upstream of this package.
-- It does not persist anything on its own. `DailyLedger`'s default is in-memory; persistence is your integration's choice — see `ARCHITECTURE.md`.
+- It does not persist anything on its own. `DailyLedger`'s default is in-memory and **single-process**: the daily-cap race it closes is closed only within one process, so two workers, pods or devices each hold an independent ledger and the daily cap can be exceeded between them. For a multi-process deployment, back the same three methods (`used` / `reserve` / `release`) with a shared, atomically-incremented store (Redis, a DB row). A persistent `DailyLedger` that closes the race across processes is the roadmap Next — the interface is stable, the implementation is your integration's until then. See [`ARCHITECTURE.md`](ARCHITECTURE.md#the-daily-ledger).
 
 ## Status
 
-Pre-1.0 (`0.1.0`). The `Envelope` and `SpendRecord` shapes are not yet frozen — a field added later ships as a minor version, but a field renamed or a verdict's meaning changed would not. Watch [`CHANGELOG.md`](CHANGELOG.md) across a version bump before pinning a wider range than `^0.1.0`.
+Pre-1.0 (`0.1.2`). The `Envelope` and `SpendRecord` shapes are not yet frozen — a field added later ships as a minor version, but a field renamed or a verdict's meaning changed would not. Watch [`CHANGELOG.md`](CHANGELOG.md) across a version bump before pinning a wider range than `^0.1.2`.
 
 ## Testing
 
 ```bash
-npm test        # 43 tests, node's built-in test runner, no external services
+npm test        # 57 tests, node's built-in test runner, no external services
 npm run check    # confirms the generated manifest is current
 ```
 

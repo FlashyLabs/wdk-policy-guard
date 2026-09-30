@@ -24,7 +24,35 @@ There is no fourth state and no partial verdict. A caller that only handles `ALL
 
 2. **A failed send releases its reservation.** If the underlying send throws (network error, chain rejection, anything), the amount that was reserved must not count against the day's budget — `guardSend()` handles this automatically; if you are not using it, call `ledger.release(chain, amount)` yourself in your own catch block.
 
-The shipped `DailyLedger` is in-memory and scoped to one process. For a multi-process or multi-device deployment, implement the same three methods (`used(chain)`, `reserve(chain, amount)`, `release(chain, amount)`) against a shared store (Redis, a database row with an atomic increment) — `grade()` and `guardSend()` only ever call those three methods, never anything else, so any object with that shape works.
+### The single-process boundary — read this before you rely on the daily cap
+
+The shipped `DailyLedger` is **in-memory and scoped to one process**, and the
+race the design closes above is closed **only within that one process**. Its
+state is a plain object on the heap: two Node processes, two workers, two pods,
+or two devices each hold their own independent `DailyLedger`, and neither can
+see the other's reservations. Grade the same agent's spends through two of them
+concurrently and both read a daily budget that ignores the other — so the daily
+cap can be exceeded by up to one process's worth of spend per process. The
+per-transaction cap, the allowlists, and every other rule are stateless and
+hold regardless; it is the `DAILY_CAP` rule alone, because it is the only rule
+that reads accumulated state, whose guarantee is bounded by the ledger's reach.
+
+The seam is deliberately three methods wide. `grade()` and `guardSend()` call
+only `used(chain)`, `reserve(chain, amount)` and `release(chain, amount)` and
+never anything else, so any object with that shape is a drop-in. For a
+multi-process or multi-device deployment, back those three methods with a shared
+store whose increment is atomic (a Redis `INCRBY`, a database row updated under
+a transaction or a conditional write) — the atomicity of `reserve` is what
+actually closes the cross-process race that the in-memory default cannot.
+
+**Roadmap — Next: a persistent `DailyLedger`.** A shared, atomically-incremented
+`DailyLedger` (Redis and a SQL-row reference implementation) that closes the
+race across processes is the intended next addition. It is not shipped yet: the
+interface for it — those three methods, with the same per-`(UTC day, chain)`
+keying — is stable and documented above, but the persistent implementation is
+the integrator's own until then. Until it ships, treat the built-in ledger's
+daily cap as a **single-process** guarantee, and do not deploy the in-memory
+default across replicas expecting the daily cap to hold between them.
 
 ## Why there is no WDK dependency
 
