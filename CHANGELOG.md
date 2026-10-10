@@ -2,6 +2,10 @@
 
 All notable changes to this project are documented here. Format loosely follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## 0.2.0 — 2026-10-10
+
+**Fixed:** a reservation released after UTC midnight was subtracted from the new day, which had reserved nothing, leaving that day's usage negative and the daily cap widened by the whole amount (external audit finding, reproduced here: used = −70 after a 70 reserved at 23:50 and released at 00:10). `DailyLedger.reserve()` now returns a receipt `{ chain, amount, day }`; `release(receipt)` subtracts from the day it was booked to, and any release that would take a day below zero throws `ReleaseExceedsReservedError` (`RELEASE_EXCEEDS_RESERVED`). The two-argument `release(chain, amount)` is kept for same-day callers and takes an optional third `at` date. The WDK adapter's `guardSend` releases by receipt.
+
 ## 0.1.2 — 2026-09-23
 
 Maintenance release. The git history available in this working tree is squashed

@@ -162,3 +162,37 @@ test('grade: every DENY verdict this suite has produced carries a code from the 
   assert.equal(v.verdict, 'DENY')
   assert.ok(DENIAL_CODES.includes(v.code))
 })
+
+// ── Reservations go back to the day they were booked to ─────────────────────
+// External audit, 2026-10-10: a reservation released after UTC midnight
+// subtracted from the new day, which had reserved nothing, and the daily cap
+// widened by the whole amount.
+
+test('ledger: a release after midnight goes back to the day it was reserved on, never into today', () => {
+  let t = new Date('2026-10-10T23:50:00.000Z')
+  const ledger = new DailyLedger(() => t)
+  const r = ledger.reserve('evm:84532', '70')
+  assert.deepEqual(r, { chain: 'evm:84532', amount: '70', day: '2026-10-10' })
+  t = new Date('2026-10-11T00:10:00.000Z')
+  ledger.release(r)
+  assert.equal(ledger.used('evm:84532'), 0n, 'today is untouched')
+  assert.equal(ledger.days.get('2026-10-10|evm:84532'), 0n, 'yesterday is back to zero, not negative')
+})
+
+test('ledger: the two-argument release keys on the booking time it is given, and refuses to go below zero', () => {
+  let t = new Date('2026-10-10T23:50:00.000Z')
+  const ledger = new DailyLedger(() => t)
+  ledger.reserve('evm:84532', '70')
+  t = new Date('2026-10-11T00:10:00.000Z')
+  assert.throws(() => ledger.release('evm:84532', '70'), { code: 'RELEASE_EXCEEDS_RESERVED' }, 'today never reserved 70')
+  ledger.release('evm:84532', '70', new Date('2026-10-10T23:50:00.000Z'))
+  assert.equal(ledger.days.get('2026-10-10|evm:84532'), 0n)
+  assert.ok(ledger.used('evm:84532') >= 0n)
+})
+
+test('ledger: no release can make any day negative, so the cap can never be widened', () => {
+  const ledger = new DailyLedger(() => new Date('2026-10-10T12:00:00.000Z'))
+  ledger.reserve('evm:84532', '10')
+  assert.throws(() => ledger.release('evm:84532', '11'), { code: 'RELEASE_EXCEEDS_RESERVED' })
+  assert.equal(ledger.used('evm:84532'), 10n)
+})

@@ -56,6 +56,13 @@ export function validateEnvelope(e) {
  * device or a service can persist it across restarts — this in-memory
  * version is the default and is enough for a single-process caller.
  */
+export class ReleaseExceedsReservedError extends Error {
+  constructor(chain, day, amount, reserved) {
+    super(`cannot release ${amount} on ${chain} for ${day}: only ${reserved} is reserved that day`)
+    this.name = 'ReleaseExceedsReservedError'; this.code = 'RELEASE_EXCEEDS_RESERVED'
+  }
+}
+
 export class DailyLedger {
   /** @param {() => Date} [now] */
   constructor(now = () => new Date()) {
@@ -66,15 +73,43 @@ export class DailyLedger {
   static dayKey(d) { return d.toISOString().slice(0, 10) }
   /** @param {string} chain */
   used(chain) { return this.days.get(`${DailyLedger.dayKey(this.now())}|${chain}`) ?? 0n }
-  /** @param {string} chain @param {string|bigint} amount */
+  /**
+   * Reserve against the current UTC day. Returns the reservation — chain,
+   * amount and the day it was booked to — which is what `release` takes back.
+   * @param {string} chain @param {string|bigint} amount
+   * @returns {{ chain: string, amount: string, day: string }}
+   */
   reserve(chain, amount) {
-    const k = `${DailyLedger.dayKey(this.now())}|${chain}`
+    const day = DailyLedger.dayKey(this.now())
+    const k = `${day}|${chain}`
     this.days.set(k, (this.days.get(k) ?? 0n) + BigInt(amount))
+    return Object.freeze({ chain, amount: BigInt(amount).toString(), day })
   }
-  /** @param {string} chain @param {string|bigint} amount */
-  release(chain, amount) {
-    const k = `${DailyLedger.dayKey(this.now())}|${chain}`
-    this.days.set(k, (this.days.get(k) ?? 0n) - BigInt(amount))
+  /**
+   * Release a reservation against THE DAY IT WAS BOOKED TO, never against
+   * today. Releasing by `(chain, amount)` alone keyed on the current day, so
+   * a send reserved at 23:50 and released at 00:10 subtracted from a day that
+   * had reserved nothing and left it negative — the next day's cap widened by
+   * the whole amount (external audit, reproduced 2026-10-10). Pass the object
+   * `reserve` returned; the two-argument form is kept for callers that know
+   * the release happens on the same UTC day and may also name that day. A
+   * release that would take a day below zero is refused: it is a release of
+   * something that was never reserved there, and a negative figure is a cap
+   * nobody set.
+   * @param {{ chain: string, amount: string|bigint, day: string } | string} reservation
+   * @param {string|bigint} [amount]  with the two-argument form
+   * @param {Date} [at]              the booking time, with the two-argument form; default now
+   */
+  release(reservation, amount, at) {
+    const r = typeof reservation === 'string'
+      ? { chain: reservation, amount: /** @type {string|bigint} */ (amount), day: DailyLedger.dayKey(at ?? this.now()) }
+      : reservation
+    if (!r || typeof r.chain !== 'string' || !/^\d{4}-\d{2}-\d{2}$/.test(r.day)) throw new Error('release needs the reservation reserve() returned, or (chain, amount[, at])')
+    const k = `${r.day}|${r.chain}`
+    const have = this.days.get(k) ?? 0n
+    const want = BigInt(r.amount)
+    if (want > have) throw new ReleaseExceedsReservedError(r.chain, r.day, want.toString(), have.toString())
+    this.days.set(k, have - want)
   }
 }
 

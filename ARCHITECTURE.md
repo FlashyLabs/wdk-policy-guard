@@ -22,7 +22,7 @@ There is no fourth state and no partial verdict. A caller that only handles `ALL
 
 1. **Reservation happens on `ALLOW`, not on send success.** `grade()` itself never writes to the ledger — it only reads `used()`. The caller (or `guardSend()`, in the WDK adapter) reserves immediately after `ALLOW`, before calling the underlying send. This closes a race: two spends graded back-to-back, both `ALLOW` against the same remaining daily budget, cannot both succeed if their combined amount would exceed the cap — the second grade() call sees the first spend's reservation already counted.
 
-2. **A failed send releases its reservation.** If the underlying send throws (network error, chain rejection, anything), the amount that was reserved must not count against the day's budget — `guardSend()` handles this automatically; if you are not using it, call `ledger.release(chain, amount)` yourself in your own catch block.
+2. **A failed send releases its reservation — against the day it was booked to.** `reserve()` returns a receipt naming the UTC day; `release(receipt)` subtracts from that day and refuses to take any day below zero. Releasing by `(chain, amount)` alone keyed on the current day, so a send reserved at 23:50 and failed at 00:10 left the new day negative and its cap widened (external audit, reproduced and fixed 2026-10-10). If the underlying send throws (network error, chain rejection, anything), the amount that was reserved must not count against the day's budget — `guardSend()` handles this automatically; if you are not using it, call `ledger.release(chain, amount)` yourself in your own catch block.
 
 ### The single-process boundary — read this before you rely on the daily cap
 

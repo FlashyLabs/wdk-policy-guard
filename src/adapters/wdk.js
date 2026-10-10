@@ -57,11 +57,13 @@ export function guardSend(send, { getEnvelope, ledger, toRecord = (s) => s }) {
     // ALLOW: reserve before sending, release on failure — a send that
     // throws must not have spent the daily cap it never used.
     const r = /** @type {{chain: string, amount: string}} */ (record)
-    ledger.reserve(r.chain, r.amount)
+    // The receipt names the UTC day the amount was booked to, so a send that
+    // fails after midnight releases from that day and never widens the next.
+    const reservation = ledger.reserve(r.chain, r.amount)
     try {
       return await send(spend)
     } catch (err) {
-      ledger.release(r.chain, r.amount)
+      ledger.release(reservation)
       throw err
     }
   }

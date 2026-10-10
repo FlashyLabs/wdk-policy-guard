@@ -1,7 +1,7 @@
 {
   "name": "@flashylabs/wdk-policy-guard",
-  "version": "0.1.2",
-  "description": "A spending-policy layer for wallets built on Tether's WDK (or any wallet SDK): grade a transfer against a per-agent envelope — kind, chain, asset and destination allowlists, a per-transaction cap, a daily cap, an auto-approve ceiling — before it signs. ALLOW, ESCALATE or DENY, with a reason.",
+  "version": "0.2.0",
+  "description": "A spending-policy layer for wallets built on Tether's WDK (or any wallet SDK): grade a transfer against a per-agent envelope \u2014 kind, chain, asset and destination allowlists, a per-transaction cap, a daily cap, an auto-approve ceiling \u2014 before it signs. ALLOW, ESCALATE or DENY, with a reason.",
   "type": "module",
   "main": "./src/index.js",
   "types": "./dist/index.d.ts",

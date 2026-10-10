@@ -188,12 +188,12 @@ committed copy has drifted.
 
 ## Status
 
-Pre-1.0 (`0.1.2`). The `Envelope` and `SpendRecord` shapes are not yet frozen — a field added later ships as a minor version, but a field renamed or a verdict's meaning changed would not. Watch [`CHANGELOG.md`](CHANGELOG.md) across a version bump before pinning a wider range than `^0.1.2`.
+Pre-1.0 (`0.2.0`). The `Envelope` and `SpendRecord` shapes are not yet frozen — a field added later ships as a minor version, but a field renamed or a verdict's meaning changed would not. Watch [`CHANGELOG.md`](CHANGELOG.md) across a version bump before pinning a wider range than `^0.2.0`.
 
 ## Testing
 
 ```bash
-npm test        # 57 tests, node's built-in test runner, no external services
+npm test        # 60 tests, node's built-in test runner, no external services
 npm run check    # confirms the generated manifest is current
 ```
 
