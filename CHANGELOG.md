@@ -2,6 +2,10 @@
 
 All notable changes to this project are documented here. Format loosely follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## Unreleased
+
+**Added:** `INVARIANTS.md` — the three guarantees this layer makes about a spend it stands in front of (never over-reserve a day, never negative, deny and escalate never send), each citing the code that enforces it and the tests that prove it — and `vendor-invariants.mjs`, the estate's `invariants/1` harness vendored byte-for-byte from spec-kit (`test/vendor-invariants.test.mjs` reports drift, and UNKNOWN rather than a pass when spec-kit is not checked out beside this repository). `test/invariants.test.mjs` drives the real `guardSend` and `DailyLedger` through every ordered pair of send / failing send / escalate / deny, and of reserve / release / over-release, under seven schedules including two that cross UTC midnight; through seeded random command sequences with a send still in flight when the day changes; and through one deliberately broken variant per invariant that the harness must refuse — a guard with an `await` between its grade and its reservation, the 0.1.x release keyed on today, a guard that folds `ESCALATE` into allowed. The real component holds every one. `npm run invariants` checks the document against the suite and CI runs it. No behavioural change.
+
 ## 0.2.0 — 2026-10-10
 
 **Fixed:** a reservation released after UTC midnight was subtracted from the new day, which had reserved nothing, leaving that day's usage negative and the daily cap widened by the whole amount (external audit finding, reproduced here: used = −70 after a 70 reserved at 23:50 and released at 00:10). `DailyLedger.reserve()` now returns a receipt `{ chain, amount, day }`; `release(receipt)` subtracts from the day it was booked to, and any release that would take a day below zero throws `ReleaseExceedsReservedError` (`RELEASE_EXCEEDS_RESERVED`). The two-argument `release(chain, amount)` is kept for same-day callers and takes an optional third `at` date. The WDK adapter's `guardSend` releases by receipt.

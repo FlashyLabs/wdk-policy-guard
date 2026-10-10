@@ -24,6 +24,10 @@ There is no fourth state and no partial verdict. A caller that only handles `ALL
 
 2. **A failed send releases its reservation — against the day it was booked to.** `reserve()` returns a receipt naming the UTC day; `release(receipt)` subtracts from that day and refuses to take any day below zero. Releasing by `(chain, amount)` alone keyed on the current day, so a send reserved at 23:50 and failed at 00:10 left the new day negative and its cap widened (external audit, reproduced and fixed 2026-10-10). If the underlying send throws (network error, chain rejection, anything), the amount that was reserved must not count against the day's budget — `guardSend()` handles this automatically; if you are not using it, call `ledger.release(chain, amount)` yourself in your own catch block.
 
+### Invariants, and the harness that holds them
+
+[`INVARIANTS.md`](INVARIANTS.md) states the three guarantees above as invariants — never over-reserve a day, never negative, deny and escalate never send — each naming the code that enforces it and the tests that prove it. It is checked by the estate's `invariants/1` harness (`vendor-invariants.mjs`, a byte-identical copy of spec-kit's; `npm run invariants`), which refuses a document whose citations name tests that do not exist. `test/invariants.test.mjs` drives the real `guardSend` and `DailyLedger` through `interleave()` — every ordered pair of operations under seven schedules, two of them across UTC midnight — and `property()` — seeded random command sequences with a send still in flight when the day changes, shrunk to the fewest commands when one fails — and, for each invariant, through `expectViolation()` with a deliberately broken variant (a guard with an `await` between its grade and its reservation, the 0.1.x release keyed on today, a guard that folds `ESCALATE` into allowed) that the harness must catch. The midnight defect held for one operation at a time and broke for a pair; the harness is the test that runs two.
+
 ### The single-process boundary — read this before you rely on the daily cap
 
 The shipped `DailyLedger` is **in-memory and scoped to one process**, and the

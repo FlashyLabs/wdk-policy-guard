@@ -118,6 +118,10 @@ Every one of these is a real test in [`test/policy.test.mjs`](test/policy.test.m
 
 `validateEnvelope()` also refuses an envelope whose `autoApproveMax` exceeds its `perTxMax`, or whose `perTxMax` exceeds its `dailyMax` — a self-contradictory envelope is caught before it can silently allow more than it claims to.
 
+## Invariants
+
+[`INVARIANTS.md`](INVARIANTS.md) states the three guarantees this layer makes about a spend it stands in front of — never over-reserve a day, never negative, deny and escalate never send — each with the code that enforces it and the tests that prove it. The document is checked, not decorative: `node vendor-invariants.mjs check .` (the estate's `invariants/1` harness, vendored byte-for-byte from spec-kit) fails when a citation names a test that does not exist, and `test/invariants.test.mjs` drives the real `guardSend` and `DailyLedger` through every pair of operations under every schedule — two of them across UTC midnight — through random command sequences with a send still in flight when the day changes, and through one deliberately broken variant per invariant that the harness must refuse. The midnight defect fixed at 0.2.0 held for one operation at a time and broke for a pair; this is the test that runs two things at once.
+
 ## Check your own implementation against ours
 
 The rules above are published as a **conformance corpus**: 44 cases, 31 of them
@@ -193,8 +197,9 @@ Pre-1.0 (`0.2.0`). The `Envelope` and `SpendRecord` shapes are not yet frozen �
 ## Testing
 
 ```bash
-npm test        # 60 tests, node's built-in test runner, no external services
+npm test        # 72 tests, node's built-in test runner, no external services
 npm run check    # confirms the generated manifest is current
+npm run invariants   # INVARIANTS.md holds against the suite (invariants/1)
 ```
 
 Every exported function has direct test coverage, including every reachable `DENY` code, every `ESCALATE` impact tier, ledger isolation across chains and UTC-day boundaries, and the `guardSend` adapter's reserve/release-on-failure behaviour.
